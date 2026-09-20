@@ -19,10 +19,16 @@ logger = logging.getLogger(__name__)
 
 def setup_logging(verbose=False):
     """Configure logging for the pipeline."""
-    pass  # TODO: implement
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s %(levelname)-8s %(message)s",
+        datefmt="%H:%M:%S"
+    )
+    
 
 
 def parse_arguments():
+    """Parse command-line arguments."""
     parser = argparse.ArgumentParser(description="check if file is valid")
 
     parser.add_argument(
@@ -34,26 +40,35 @@ def parse_arguments():
     parser.add_argument(
         "--output", "-o",
         required=True,
-        help="what output file?"
+        help="output report filename"
     )
 
     parser.add_argument(
         "--format",
         choices=["csv", "json"],
-        default="csv"
+        default="csv",
+        help="output file format"
     )
 
     parser.add_argument(
         "--verbose", "-v",
-        action="store_true"
+        action="store_true",
+        help="show detailed DEBUG message"
     )
 
     args = parser.parse_args()
 
+    if args.verbose:
+        logger.setLevel(logging.DEBUG)
+
+    return args
+
 
 def validate_input(filepath):
     """Check whether the input path exists and is a file."""
-    pass  # TODO: implement
+    #filepath = Path()
+    
+
 
 
 def main():
