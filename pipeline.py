@@ -38,7 +38,7 @@ def parse_arguments():
     parser.add_argument(
         "--input", "-i",
         required=True,
-        help="what input file?"
+        help="process input data file"
     )
 
     parser.add_argument(
@@ -68,9 +68,12 @@ def parse_arguments():
 def validate_input(filepath):
     """Check whether the input path exists and is a file."""
     p = Path(filepath)
-    if not p.is_file():
+    if p.is_file():
+        logger.info(f"File validated: '{filepath}'")
+        return True
+    else:
         logger.error(f"File not found: '{filepath}'")
-    
+        return False
     
 
 
