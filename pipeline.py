@@ -19,12 +19,16 @@ logger = logging.getLogger(__name__)
 
 def setup_logging(verbose=False):
     """Configure logging for the pipeline."""
+    if verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+
     logging.basicConfig(
-        level=logging.INFO,
+        level=level,
         format="%(asctime)s %(levelname)-8s %(message)s",
         datefmt="%H:%M:%S"
-    )
-    
+    )  
 
 
 def parse_arguments():
@@ -58,15 +62,15 @@ def parse_arguments():
 
     args = parser.parse_args()
 
-    if args.verbose:
-        logger.setLevel(logging.DEBUG)
-
     return args
 
 
 def validate_input(filepath):
     """Check whether the input path exists and is a file."""
-    #filepath = Path()
+    p = Path(filepath)
+    if not p.is_file():
+        logger.error(f"File not found: '{filepath}'")
+    
     
 
 
