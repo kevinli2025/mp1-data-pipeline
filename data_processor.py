@@ -4,7 +4,6 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 def remove_duplicates(df):
-    """Remove duplicate rows."""
     prev_len = len(df)
     new_df = df.drop_duplicates()
     after_len = len(new_df)
@@ -13,14 +12,49 @@ def remove_duplicates(df):
 
 
 def handle_missing(df, axis="rows"):
-    """Drop rows or columns containing missing values."""
-    new_df = df.dropna(axis=0)
+    if axis == "rows":
+        new_df = df.dropna(axis="rows")
+        logger.debug(f"Rows removed: {len(df) - len(new_df)}")
+    elif axis == "columns":
+        new_df = df.dropna(axis="columns")
+        logger.debug(f"Columns removed: {len(df.columns) - len(new_df.columns)}")
+    else:
+        logger.error(f"Unsupported axis")
+        raise ValueError
     return new_df
 
 
 def remove_outliers(df, columns, method, threshold):
-    """Remove outliers from the specified numeric columns."""
-    pass
+    if (method != "iqr") and (method != "zscore"):
+        logger.error("invalid method, only 'iqr' and 'zscore' are valid")
+        raise ValueError
+    for column in columns:
+        if column not in list(df):
+            logger.warning(f"column {column} does not exist")
+            continue
+        elif pd.api.types.is_numeric_dtype(df[column]) is False:
+            logger.warning(f"column {column} is not numeric")
+            continue
+
+        if method == "iqr":
+            q1 = df[column].quantile(0.25)
+            q3 = df[column].quantile(0.75)
+            iqr = q3 - q1
+
+            lower = q1 - (threshold * iqr)
+            upper = q3 + (threshold * iqr)
+
+            df = df[(df[column] >= lower) & (df[column] <= upper)]
+
+        elif method == "zscore":
+            mean = df[column].mean()
+            std = df[column].std()
+
+            z_scores = (df[column] - mean) / std
+            mask = abs(z_scores) <= threshold
+            df = df[mask]
+
+    
 
 
 def process_data(df, config):
