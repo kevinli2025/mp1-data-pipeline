@@ -36,6 +36,8 @@ def remove_outliers(df, columns, method, threshold):
             logger.warning(f"column {column} is not numeric")
             continue
 
+        prev_len = len(df)
+
         if method == "iqr":
             q1 = df[column].quantile(0.25)
             q3 = df[column].quantile(0.75)
@@ -51,15 +53,31 @@ def remove_outliers(df, columns, method, threshold):
             std = df[column].std()
 
             z_scores = (df[column] - mean) / std
-            mask = abs(z_scores) <= threshold
-            df = df[mask]
+            df = df[abs(z_scores) <= threshold]
 
+    logger.debug(f"{column}: method = {method}, threshold = {threshold}, rows removed = {prev_len - len(df)} ")
+    return df
     
 
-
 def process_data(df, config):
-    """Apply the processing steps enabled in the configuration."""
-    pass
+    processing = config["processing"]
+    remove_dupes = processing["remove_duplicates"]
+    missing = processing["missing"]
+    outliers = processing["outliers"]
+
+    if remove_dupes is True:
+        df = remove_duplicates(df)
+
+    if missing["enabled"] is True:
+        df = handle_missing(df, missing["axis"])
+
+    if outliers["enabled"] is True:
+        df = remove_outliers(df, outliers["columns"], outliers["columns"], outliers["threshold"])
+    
+    return df
+        
+        
+    
 
 
 def create_cleaning_report(df_before, df_after):
