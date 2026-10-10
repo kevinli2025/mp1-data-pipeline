@@ -76,14 +76,25 @@ def main():
     args = parse_arguments()
     setup_logging(args.verbose)
     logger.debug(f"Arguments parsed: input={args.input}, output={args.output}, config={args.config}")
-    validate_input(args.input)
     if not validate_input(args.input):
+        sys.exit(1)
+
+    if not validate_input(args.config):
         sys.exit(1)
 
     try:
         data = load_data(args.input)
+        config = load_data(args.config)
     except ValueError:
         sys.exit(1)
+
+    prev_data = data.copy()
+
+    try:
+        process_data(data, config)
+    except ValueError:
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()
