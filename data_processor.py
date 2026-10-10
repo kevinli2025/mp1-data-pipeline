@@ -72,14 +72,17 @@ def process_data(df, config):
         df = handle_missing(df, missing["axis"])
 
     if outliers["enabled"] is True:
-        df = remove_outliers(df, outliers["columns"], outliers["columns"], outliers["threshold"])
+        df = remove_outliers(df, outliers["columns"], outliers["method"], outliers["threshold"])
     
     return df
-        
-        
-    
 
 
 def create_cleaning_report(df_before, df_after):
-    """Return a dictionary summarizing the cleaning results."""
-    pass
+    cleaning_report = {"rows_before": len(df_before), 
+                       "rows_after": len(df_after),
+                       "rows_removed": (len(df_before) - len(df_after)),
+                       "columns_before": len(df_before.columns),
+                       "columns_after": len(df_after.columns),
+                       "columns_removed": (len(df_before.columns) - len(df_after.columns))}
+    
+    return cleaning_report
