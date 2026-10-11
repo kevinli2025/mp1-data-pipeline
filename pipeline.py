@@ -1,33 +1,17 @@
-"""
-Data Processing Pipeline - CLI Template
-
-DS 3500 - MP1
-
-Usage:
-    python pipeline.py --input data.csv --output clean.csv
-    python pipeline.py --input data.csv --output results.json --format json --verbose
-"""
 import argparse
 import logging
 import sys
-from pathlib import Path
-from data_loaders import load_data
-from data_processor import process_data, create_cleaning_report
+from src import (
+    create_cleaning_report,
+    load_data,
+    process_data,
+    save_data,
+    setup_logging,
+    validate_dataframe,
+    validate_input,
+)
 
 logger = logging.getLogger(__name__)
-
-def setup_logging(verbose=False):
-    """Configure logging for the pipeline."""
-    if verbose:
-        level = logging.DEBUG
-    else:
-        level = logging.INFO
-
-    logging.basicConfig(
-        level=level,
-        format="%(asctime)s %(levelname)-8s %(name)s — %(message)s",
-        datefmt="%H:%M:%S"
-    )  
 
 def parse_arguments():
     """Parse command-line arguments."""
@@ -60,16 +44,6 @@ def parse_arguments():
     args = parser.parse_args()
 
     return args
-
-def validate_input(filepath):
-    """Check whether the input path exists and is a file."""
-    p = Path(filepath)
-    if p.is_file():
-        logger.info(f"File validated: '{filepath}'")
-        return True
-    else:
-        logger.error(f"File not found: '{filepath}'")
-        return False
     
 def main():
     """Main pipeline function."""
@@ -85,23 +59,37 @@ def main():
     try:
         data = load_data(args.input)
         config = load_data(args.config)
+
     except ValueError:
         sys.exit(1)
 
     prev_data = data.copy()
 
+    required_columns = config["validation"]["required_columns"]
+    numeric_columns = config["validation"]["numeric_columns"]
+
+    prev_len = len(data)
+    
     try:
-        process_data(data, config)
+        data = validate_dataframe(data, required_columns, numeric_columns)
+    except ValueError:
+        sys.exit(1)
+
+    logger.info(f"Validation complete: {prev_len} -> {len(data)} rows")
+
+    try:
+        data = process_data(data, config)
     except ValueError:
         sys.exit(1)
 
     logger.info(f"Processing complete: {len(prev_data)} -> {len(data)} rows")
 
-    data.to_csv(args.output, index=False)
+    save_data(data, args.output)
 
     logger.info(f"Saved cleaned data to {args.output}")
 
     report = create_cleaning_report(prev_data, data)
+    print("Cleaning report:")
     print(report)
     
 
