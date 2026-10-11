@@ -7,17 +7,17 @@ def remove_duplicates(df):
     prev_len = len(df)
     new_df = df.drop_duplicates()
     after_len = len(new_df)
-    logger.debug(f"number of rows removed: {prev_len - after_len}")
+    logger.debug(f"remove_duplicates: {prev_len} -> {after_len} rows")
     return new_df
 
 
 def handle_missing(df, axis="rows"):
     if axis == "rows":
         new_df = df.dropna(axis="rows")
-        logger.debug(f"Rows removed: {len(df) - len(new_df)}")
+        logger.debug(f"handle_missing: {len(df)} -> {len(new_df)}")
     elif axis == "columns":
         new_df = df.dropna(axis="columns")
-        logger.debug(f"Columns removed: {len(df.columns) - len(new_df.columns)}")
+        logger.debug(f"handle_missing: {len(df.columns)} -> {len(new_df.columns)}")
     else:
         logger.error(f"Unsupported axis")
         raise ValueError
@@ -55,7 +55,7 @@ def remove_outliers(df, columns, method, threshold):
             z_scores = (df[column] - mean) / std
             df = df[abs(z_scores) <= threshold]
 
-    logger.debug(f"{column}: method = {method}, threshold = {threshold}, rows removed = {prev_len - len(df)} ")
+        logger.debug(f"{column}: method = {method}, threshold = {threshold}, rows removed = {prev_len - len(df)} ")
     return df
     
 
