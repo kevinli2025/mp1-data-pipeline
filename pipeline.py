@@ -95,6 +95,15 @@ def main():
     except ValueError:
         sys.exit(1)
 
+    logger.info(f"Processing complete: {len(prev_data)} -> {len(data)} rows")
+
+    data.to_csv(args.output, index=False)
+
+    logger.info(f"Saved cleaned data to {args.output}")
+
+    report = create_cleaning_report(prev_data, data)
+    print(report)
+    
 
 if __name__ == "__main__":
     main()
