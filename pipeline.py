@@ -63,8 +63,6 @@ def main():
     except ValueError:
         sys.exit(1)
 
-    prev_data = data.copy()
-
     required_columns = config["validation"]["required_columns"]
     numeric_columns = config["validation"]["numeric_columns"]
 
@@ -76,6 +74,8 @@ def main():
         sys.exit(1)
 
     logger.info(f"Validation complete: {prev_len} -> {len(data)} rows")
+
+    prev_data = data.copy()
 
     try:
         data = process_data(data, config)
